@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Speaker recognition</title>
+  </head>
+  <body>
+    <audio id="player" src="rurkowce.m4a" controls></audio>
+    <a href="https://www.youtube.com/watch?v=D5zealjVsIk">source</a>
+
+    <canvas width="800" height="300"></canvas>
+
+    <script>
+      const player = document.querySelector('#player');
+      const audioCtx = new AudioContext();
+      const source = audioCtx.createMediaElementSource(player);
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 2048;
+
+      source.connect(analyser).connect(audioCtx.destination);
+
+      const bufferLength = analyser.frequencyBinCount;
+      const analyserOutput = new Uint8Array(bufferLength);
+
+      function draw() {
+        analyser.getByteFrequencyData(analyserOutput);
+        console.log(analyserOutput);
+        requestAnimationFrame(draw);
+      }
+
+      draw();
+    </script>
+  </body>
+</html>
