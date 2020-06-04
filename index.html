@@ -4,12 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Speaker recognition</title>
+
+    <style>
+      canvas {
+        display: block;
+      }
+    </style>
   </head>
+
   <body>
     <audio id="player" src="rurkowce.m4a" controls></audio>
     <a href="https://www.youtube.com/watch?v=D5zealjVsIk">source</a>
 
-    <canvas width="800" height="300"></canvas>
+    <canvas width="500" height="150"></canvas>
 
     <script>
       const player = document.querySelector('#player');
@@ -23,9 +30,37 @@
       const bufferLength = analyser.frequencyBinCount;
       const analyserOutput = new Uint8Array(bufferLength);
 
+      const canvas = document.querySelector('canvas');
+
+      canvas.onclick = () => (player.paused ? player.play() : player.pause());
+
+      const canvasCtx = canvas.getContext('2d');
+
       function draw() {
+        // based on https://github.com/mdn/voice-change-o-matic/blob/gh-pages/scripts/app.js#L197
+
         analyser.getByteFrequencyData(analyserOutput);
-        console.log(analyserOutput);
+
+        canvasCtx.fillStyle = 'rgb(0, 0, 0)';
+        canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+        var barWidth = (canvas.width / bufferLength) * 2.5;
+        var barHeight;
+        var x = 0;
+
+        for (var i = 0; i < bufferLength; i++) {
+          barHeight = analyserOutput[i];
+
+          canvasCtx.fillStyle = 'rgb(' + (barHeight + 100) + ',50,50)';
+          canvasCtx.fillRect(
+            x,
+            canvas.height - barHeight / 2,
+            barWidth,
+            barHeight / 2
+          );
+
+          x += barWidth + 1;
+        }
         requestAnimationFrame(draw);
       }
 
